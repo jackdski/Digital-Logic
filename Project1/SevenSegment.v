@@ -1,11 +1,9 @@
-module SevenSegment(value, disp);
-//input CLK;
+module SevenSegment(value, overflow, disp);
 input [3:0] value;
+input overflow;
 output reg [7:0] disp;
-//output [7:0] disp;
 
-
-//always @(posedge CLK)
+reg p;
 always @(*)
 begin
 	case(value)
@@ -26,6 +24,19 @@ begin
 		4'b1110 : disp [7:0] <= 8'b10000110;// E <= 7'h4F;
 		4'b1111 : disp [7:0] <= 8'b10001110;// F <= 7'h47;
 	endcase
+	
+	//reg p;
+	if(overflow == 1) 
+	begin
+		//assign disp[7] = 0;
+		p = 0;
+	end	
+	else
+	begin 
+		p = 1;
+	end
+	
+	disp[7] = p;
 end 
 
 endmodule
