@@ -1,10 +1,10 @@
+//module Arithmetic();
+
 module FullAdder(x, y, s, ci, co);
 	input x, y, ci;
 	output s, co;
 	assign s=x^y^ci;
-	assign co=x&y|x&ci|y&ci;
-	
-	
+	assign co=x&y|x&ci|y&ci;	
 endmodule 
 
 module Adder(
@@ -23,32 +23,24 @@ module Adder(
 			FullAdder fOne(x[i],y[i],s[i], carry[i], carry[i+1]);
 		end
 	endgenerate 
-	assign c = carry[3];
+	assign c = carry[4];
 endmodule 
 
-//module subtractor(
-//	input [3:0] A,
-//	input [3:0] B,
-//	output [3:0] out
-//	);
-//	
-//	genvar i;
-//	for(i=0; i<4; i=i+1)
-//	begin:subbit
-//		if (B[i]==0)
-//		begin
-//			B[i]=1;
-//		end
-//		else
-//		begin
-//			B[i]=0;
-//		end
-//	end
-//	assign B = B+1;
-//	FullAdder(A, B, out)
-//endmodule
+module Subtractor(
+	input [3:0] A,
+	input [3:0] B,
+	output [3:0] out,
+	output overflow,
+	output negative
+	);
 	
-module mult_2(in, out, carry);
+	wire [3:0] b;
+	assign b = ~B + 1;
+	
+	Adder add(A, b, out, overflow);	
+endmodule
+	
+module Mult_2(in, out, carry);
 	input [7:0] in;
 	output [7:0] out;
 	output carry;
@@ -60,15 +52,12 @@ module mult_2(in, out, carry);
 	
 	always @(in)
 	begin
-		//assign carry=0;
 		if (in[7] == 1)
 			begin
-				//assign carry = 1;
 				o = 1;
 			end
 		else
 			begin
-				//assign carry = 0;
 				o = 0;
 			end
 	end
@@ -77,7 +66,7 @@ module mult_2(in, out, carry);
 	
 endmodule
 	
-module div_2(in, out, remain);
+module Div_2(in, out, remain);
 	input [7:0] in;
 	output [7:0] out;
 	output remain;
