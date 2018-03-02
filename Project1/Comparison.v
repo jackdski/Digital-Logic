@@ -1,11 +1,25 @@
-//module Master C
-
+module MasterC(
+	input [3:0] X,
+	input [3:0] Y,
+	input [1:0] select,
+	output [7:0] out
+	);
+	
+	wire [7:0] sigbit1, sigbit2, sigbit3, sigbit4;
+	
+	Equalmod(X, Y, sigbit1);
+	Greatermod(X, Y, sigbit2);
+	LessThanmod(X, Y, sigbit3);
+	Maxmod(X, Y, sigbit4);
+	
+	mux comparedisplay(sigbit1, sigbit2, sigbit3, sigbit4, select, out);
+	
+endmodule
 
 module Equalmod(
 	input [3:0] x,
 	input [3:0] y,
-	//output [3:0] out
-	output out
+	output [7:0] out
 	);
 	
 	reg equal;
@@ -21,16 +35,15 @@ module Equalmod(
 			equal =0;
 		end
 	end
-	//assign out[0]=equal;
-	assign out = equal;
+	assign out[0] = equal;
 endmodule 
 
 
 
-module GreaterMod(
+module Greatermod(
 	input [3:0] x,
 	input [3:0] y,
-	output [3:0] out
+	output [7:0] out
 	);
 	
 	reg equal;
@@ -48,10 +61,10 @@ module GreaterMod(
 	assign out[0]=equal;
 endmodule 
 
-module LessThanMod(
+module LessThanmod(
 	input [3:0] x,
 	input [3:0] y,
-	output [3:0] out
+	output [7:0] out
 	);
 	
 	reg equal;
@@ -71,38 +84,17 @@ endmodule
 
 
 
-module MaxMod(
+module Maxmod(
 	input [3:0] x,
 	input [3:0] y,
-	output reg [3:0] out
-	//output out
+	output reg [7:0] out
 	);
-	//reg [3:0] truth;
 	reg truth;
-	//wire [3:0] equal;
-	//reg [3:0] equal;
 	reg equal;
 	
 	always @(*)
 	begin
 		case(x)
-//			4'b0000 : assign truth = y[3] | y[2] | y[1] | y[0];
-//			4'b0001 : assign truth = y[3] | y[2] | y[1];
-//			4'b0010 : assign truth = y[3] | y[2] | (y[1]&y[0]);
-//			4'b0011 : assign truth = y[3] | y[2];
-//			4'b0100 : assign truth = y[3] | (y[2]&y[1]) | (y[2]&y[0]);
-//			4'b0101 : assign truth = y[3] | (y[2]&y[1]);
-//			4'b0110 : assign truth = y[3] | (y[2]&y[1]&y[0]);
-//			4'b0111 : assign truth = y[3];
-//			4'b1000 : assign truth = (y[3] & y[2]) | (y[3]&y[1]) | (y[3]&y[0]);
-//			4'b1001 : assign truth = (y[3] & y[2]) | (y[3]&y[1]);
-//			4'b1010 : assign truth = (y[3] & y[2]) | (y[3]&y[1]&y[0]);
-//			4'b1011 : assign truth = (y[3] & y[2]);
-//			4'b1100 : assign truth = (y[3] & y[2] & y[0]) | (y[3]&y[2]&y[1]);
-//			4'b1101 : assign truth = (y[3] & y[2] & y[1]);
-//			4'b1110 : assign truth = (y[3] & y[2] & y[1] & y[0]);
-//			4'b1111 : assign truth = 0;
-
 
 			4'b0000 : truth <= y[3] | y[2] | y[1] | y[0];
 			4'b0001 : truth <= y[3] | y[2] | y[1];
@@ -121,25 +113,7 @@ module MaxMod(
 			4'b1110 : truth <= (y[3] & y[2] & y[1] & y[0]);
 			4'b1111 : truth <= 0;
 		endcase
-	//end 
 	
-	//Equal (x,y, equal);
-		
-//	if(equal == 1)
-//		begin
-//			//assign out[0]=0;
-//			//assign out = 0;
-//			out = 4'b0000;
-//		end	
-//	else if (truth == 1)
-//		begin
-//			assign out = y;
-//		end	
-//	else
-//		begin
-//			assign out = x;
-//		end
-//	end
 	
 	if(truth == 1)
 		begin 
@@ -153,5 +127,6 @@ module MaxMod(
 		begin 
 			out = 0;
 		end 
-end
+	end
+	
 endmodule 
