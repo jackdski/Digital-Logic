@@ -1,4 +1,8 @@
-
+/*
+Jack Danielski and Mike Fruge
+ECEN 2350 
+Spring 2018
+*/
 module mux(
 	input [7:0] a,
 	input [7:0] b, 
