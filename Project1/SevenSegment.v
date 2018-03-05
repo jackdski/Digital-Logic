@@ -1,4 +1,8 @@
-
+/*
+Jack Danielski and Mike Fruge
+ECEN 2350 
+Spring 2018
+*/
 module SevenSegment(value, disp);
 input [7:0] value;
 output reg [7:0] disp;
