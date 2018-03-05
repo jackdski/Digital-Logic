@@ -1,3 +1,8 @@
+/*
+Jack Danielski and Mike Fruge
+ECEN 2350 
+Spring 2018
+*/
 module MasterM(
 	input CLK,
 	output reg [9:0]leds
