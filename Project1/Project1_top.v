@@ -1,3 +1,8 @@
+/*
+Jack Danielski and Mike Fruge
+ECEN 2350 
+Spring 2018
+*/
 module Project1_top(
 	input [1:0]KEY,
 	input [9:0]SW,
