@@ -1,3 +1,8 @@
+/*
+Jack Danielski and Mike Fruge
+ECEN 2350 
+Spring 2018
+*/
 module MasterL(
 	input [3:0] X,
 	input [3:0] Y,
