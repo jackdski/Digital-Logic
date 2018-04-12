@@ -1,6 +1,7 @@
 module bcdCounter( 
 	input binaryTime[10:0],
 	input clk,
+	output reg [3:0] seconds,
 	output reg [3:0] tenths,
 	output reg [3:0] hundreths,
 	output reg [3:0] thousandths
