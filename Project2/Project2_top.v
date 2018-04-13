@@ -1,4 +1,4 @@
-module Project_2_top(
+module Project2_top(
 	input [1:0] KEY,
 	input [9:0] SW,
 	input MAX10_CLK1_50,
@@ -12,15 +12,50 @@ module Project_2_top(
 	);
 	
 	
+	parameter A=3'b000, B=3'b001, C=3'b010, D=3'b011, E=3'b100, F=3'b100; // define states
 	
-	parameter A=3'b000, B=3'b001, C=3'b010, D=3'b011, E=3'b100, F=3'b100;
-	reg CS=3'b000;
-	wire [10:0] randomnum;
-	wire [10:0] randtime;
-	wire [10:0] meastime;
-	reg [10:0] savetime;
+	reg [2:0] CS; // holds current state
+	wire [10:0] randomnum; // output of LSFR
+	//wire [10:0] mstime;
+	wire [10:0] mstime;
+	//wire [10:0] meastime;
+	wire meastime;
+	
+	wire [4:0] ein, zehn, hundert, tousand;
+	wire clk;
+	
+	reg [9:0] ledz;
+	reg changeKey;
+	reg [14:0] timer;
+	reg initTimer;
+	initial initTimer = 0;
+	
+	reg [14:0] yourtime;
 	reg [10:0] hiscore;
-	
+//	reg [3:0] thousanths;
+//	reg [3:0] hundreths;
+//	reg [3:0] tenths;
+//	reg [2:0] ones;
+		
+	wire [3:0] thousanths;
+	wire [3:0] hundreths;
+	wire [3:0] tenths;
+	wire [3:0] ones;
+	wire [7:0] disp0, disp1, disp2, disp3;
+		
+	initial CS = A;
+		
+	//Clock_divider first(MAX10_CLK1_50, mstime[10:0]);
+	//Clock_divider first(MAX10_CLK1_50, mstime);
+	Clock_divider first(MAX10_CLK1_50, clk);
+	LFSR sht (clk, randomnum[10:0]);
+	BCD_Counter meas(clk, state, ones, tenths, hundreths, thousanths);
+	BCD_decoder(CS, ones, tenths, hundreths, thousanths, disp0, disp1, disp2, disp3);
+	SevenSegmentOnes(ones, disp3); // displays decimal to indicate seconds
+	SevenSegment(tenths, disp2);
+	SevenSegment(hundreths, disp1);
+	SevenSegment(thousandths, disp0);
+
 	always@(posedge SW[0])
 	begin
 		CS=A;
@@ -31,74 +66,93 @@ module Project_2_top(
 		CS=F;
 	end
 	
-	
-	// State 0
-	// KEY[0]= Start
-	if(CS==A) // Initialize 7-seg to 0's
+	always@(posedge clk) 
 	begin
-		// Do Nothing, wait for KEY[0] to be 1 or SW[0] to be 1
-		always@(negedge KEY[0])
-		begin
-			CS<=B;
-		end
+		timer = timer + 1;
 	end
 	
-	if(CS==B)
+	always@(*)
 	begin
-		if(LEDR[9:0] ==0 & KEY[1]==1) // 'Delaying the Measurement'
-		begin
-			CS=B;
+		// State 0
+		// KEY[0]= Start
+		if(CS == A)	// Do Nothing state, wait for KEY[0] to be 1 or SW[0] to be 1
+		begin	
+			//always@(negedge KEY[0])
+			if(KEY[0])
+			begin
+				changeKey = 1;
+			end
+			
+			if(KEY[0] && changeKey)
+			begin
+				changeKey = 0;
+				CS=B;
+			end
 		end
-		if(LEDR[9:0] ==0 & KEY[1]==0)
+		
+		else if(CS==B) // State to make sure KEY[1] isn't still pressed
 		begin
-			CS=C;
+			if((LEDR[9:0] == 0) && KEY[1]) // 'Delaying the Measurement'
+			begin
+				CS=B;
+			end
+			else if((~LEDR[9:0]) && (~KEY[1]))
+			begin
+				CS= C;
+			end
 		end
+		else if(CS==C)	// get LFSR stuff and then light up LEDs
+		begin
+//			LFSR sht (MAX10_CLK1_50, randomnum[10:0]);
+//			Clock_divider first(MAX10_CLK1_50, mstime[10:0]);
+			if(~initTimer)
+			begin
+				timer = 0;
+				initTimer = 1; 
+			end
+			if(timer >= randomnum)
+			begin
+				//LEDR[9:0] = 10'b1111111111;
+				ledz = 10'b1111111111;
+				CS=D;
+				initTimer = 0;
+			end
+		end
+		
+		
+		else if(CS==D)	
+		begin
+			if(KEY[1])
+			begin
+				yourtime <= {ones [3:0], tenths[3:0], hundreths[3:0], thousanths[3:0]} ;
+				CS=E;
+			end
+		end
+		
+		else if(CS==E)	// show yourtime on seven seg
+			//LEDR[9:0]=10'b0000000000;
+			ledz = 10'b0000000000;
+			if(yourtime<hiscore)
+			begin
+				hiscore=yourtime;
+				//assign LEDR[9:0]=10'b1010101010;
+				ledz = 10'b1010101010;
+			end
+			//always@(posedge KEY[1])
+			if(KEY[1])
+			begin
+				CS=F;
+			end
+		
+		
+		else if(CS==F)
+			//Display Highscore
+			//always@(posedge KEY[1])
+			if(KEY[1])
+			begin
+				CS=A;
+			end
 	end
 	
-	if(CS==C)
-	begin
-		lfsr shift(MAX10_CLK1_50, randomnum[10:0]);
-		clockdivider first(MAX10_CLK1_50, randomnum[10:0],0, LEDR[9:0], randtime[10:0]);
-		CS=D;
-	end
-	
-	
-	if(CS==D)
-	begin
-		if(KEY[1]==0)
-		begin
-			clockdivider second(MAX10_CLK1_50, 0,1, LEDR[9:0], meastime[10:0])
-			// meastime goes to counter, which outputs to the decoder
-		end
-		always@(posedge KEY[1])
-		begin
-			savetime = meastime[10:0];
-			CS=E;
-		end
-	end
-	
-	if(CS==E)
-	begin
-		LEDR[9:0]=10'b0000000000;
-		// show savetime on seven seg
-		if(savetime<hiscore)
-		begin
-			hiscore=savetime;
-			assign LEDR[9:0]=10'b1010101010;
-		end
-		always@(posedge KEY[1])
-		begin
-			CS=F;
-		end
-	end
-	
-	
-	if(CS==F)
-	begin
-		//Display Highscore
-		always@(posedge KEY[1])
-		begin
-			CS=A;
-		end
-	end
+	assign LEDR[9:0] = ledz[9:0];
 endmodule
