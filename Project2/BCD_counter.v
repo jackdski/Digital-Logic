@@ -1,39 +1,45 @@
-// helped by book 5.14
-module BCDCount(
-	input clkDivder,
-	output reg [3:0]BCD3,
-	output reg [3:0]BCD2,
-	output reg [3:0]BCD1,
-	output reg [3:0]BCD0
+module BCD_Counter( 
+	input clk,
+	input [2:0] state,
+	output reg [3:0] ones,
+	output reg [3:0] tenths,
+	output reg [3:0] hundreths,
+	output reg [3:0] thousandths
 	);
 	
+	parameter reset = 4'b1001;
+	//reg [10:0] num;
+	
+	//Clock_divider(clk, num[10:0]);
+	
+	//always@(posedge num)
+	
 	always @(posedge clk)
-	begin
-		if(BCD0 == 4'b1001)
 		begin
-			BCD0 <= 0;
-			if(BCD1 == 4'b1001)
+			thousandths = thousandths +1;
+			if (thousandths == reset)
 			begin
-				BCD1 <= 0;
-				if(BCD2 == 4'b1001)
-				begin
-					BCD2 <= 0;
-					if(BCD3 == 4'b1001)
-						BCD3 <= 0;
-					else
-						BCD3 <= BCD3 + 1;
-				end
-				else
-				begin 
-					BCD2 <= BCD2 + 1;	
-				end
-			end
-			else
-			begin
-				BCD1 <= BCD1 + 1;
+				thousandths <= 4'b0000;
+				hundreths <= hundreths +1;
 			end
 		end
-		else 
-		BCD0 <= BCD0 + 1;
-	
-endmodule 
+		
+		always@(posedge hundreths)
+		begin
+			if(hundreths == reset)
+			begin
+				hundreths <= 4'b0000;
+				tenths <= tenths + 1;
+			end
+		end
+		
+		always@(posedge tenths)
+		begin
+			if (tenths == reset)
+			begin
+				tenths <= 4'b0000;
+				ones <= ones+1;
+			end
+		end
+
+endmodule
