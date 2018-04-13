@@ -1,4 +1,4 @@
-module lfsr(
+module LFSR(
 input clk,
 output [10:0] num
 );
