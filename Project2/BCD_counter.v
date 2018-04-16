@@ -1,6 +1,6 @@
-module BCD_Counter( 
+module bcdCounter( 
 	input clk,
-	input [2:0] state,
+	input enable,
 	output reg [3:0] ones,
 	output reg [3:0] tenths,
 	output reg [3:0] hundreths,
@@ -8,38 +8,53 @@ module BCD_Counter(
 	);
 	
 	parameter reset = 4'b1001;
-	//reg [10:0] num;
 	
-	//Clock_divider(clk, num[10:0]);
 	
-	//always@(posedge num)
+//	initial
+//	begin
+//		ones=0;
+//		tenths=0;
+//		hundreths=0;
+//		thousandths=0;
+//	end
 	
-	always @(posedge clk)
+	always@(posedge clk)
+	begin
+		if(~enable) // IF enable allows this module to go, then it will count, otherwise it will do nothing
 		begin
-			thousandths = thousandths +1;
-			if (thousandths == reset)
+			if(thousandths==reset)
 			begin
-				thousandths <= 4'b0000;
-				hundreths <= hundreths +1;
+				thousandths<=0;
+				if(hundreths==reset)
+				begin
+					hundreths<=0;
+					if(tenths==reset)
+					begin
+						tenths<=0;
+						//ones<= ones+1;
+						if(ones==reset)
+						begin
+							ones<=0;
+						end
+						else
+						begin
+							ones<=ones+1;
+						end
+					end
+					else
+					begin
+						tenths<=tenths+1;
+					end
+				end
+				else
+				begin
+					hundreths<=hundreths+1;
+				end
+			end
+			else
+			begin
+				thousandths<=thousandths+1;
 			end
 		end
-		
-		always@(posedge hundreths)
-		begin
-			if(hundreths == reset)
-			begin
-				hundreths <= 4'b0000;
-				tenths <= tenths + 1;
-			end
-		end
-		
-		always@(posedge tenths)
-		begin
-			if (tenths == reset)
-			begin
-				tenths <= 4'b0000;
-				ones <= ones+1;
-			end
-		end
-
+	end
 endmodule
