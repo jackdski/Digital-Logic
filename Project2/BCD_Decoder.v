@@ -42,12 +42,14 @@ output reg [7:0] disp;
 
 endmodule
 
-module BCD_decoder( 
-	input [2:0] state,
+module bcdDecoder( 
+	//input [2:0] state,
+	input hienable,
 	input [3:0] ones,
 	input [3:0] tenths,
 	input [3:0] hundreths,
 	input [3:0] thousandths,
+	input [15:0] hiscore,
 //	output reg [7:0] disp0,
 //	output reg [7:0] disp1,
 //	output reg [7:0] disp2,
@@ -59,35 +61,33 @@ module BCD_decoder(
 	);
 
 	reg [7:0] segZero, segOne, segTwo, segThree;
-	always @(state)
-		begin
-		if(state != 3) // state is before D
-		begin
-			segZero = 0;
-			segOne = 0;
-			segTwo = 0;
-			segThree = 0;
-			
-		end
-		
-		else if(state[2]) // if state E or F
-		begin
+
+	
+	always @(hienable)
+	begin
+		if(hienable == 0)
+		begin 
 			segThree = ones;
 			segTwo = tenths;
 			segOne = hundreths;
 			segZero = thousandths;
-		end	
-	end
+		end
+		else
+			segThree = hiscore[15:12];
+			segTwo = hiscore[11:8];
+			segOne = hiscore[7:4];
+			segZero = hiscore[3:0];
+		end
+		
+//	SevenSegmentOnes m(ones, disp3); // displays decimal to indicate seconds
+//	SevenSegment n(tenths, disp2);
+//	SevenSegment o(hundreths, disp1);
+//	SevenSegment p(thousandths, disp0);
+//	
 
-	assign disp0 = segZero;
-	assign disp1 = segOne;
-	assign disp2 = segTwo;
-	assign disp3 = segThree;
-	
-	
-//	SevenSegmentOnes(ones, disp3); // displays decimal to indicate seconds
-//	SevenSegment(tenths, disp2);
-//	SevenSegment(hundreths, disp1);
-//	SevenSegment(thousandths, disp0);
+	SevenSegmentOnes m(segThree, disp3); // displays decimal to indicate seconds
+	SevenSegment n(segTwo, disp2);
+	SevenSegment o(segOne, disp1);
+	SevenSegment p(segZero, disp0);
 	
 endmodule 
